@@ -1,0 +1,16 @@
+PODS:
+  - CTableViewManager (0.1.0)
+
+DEPENDENCIES:
+  - CTableViewManager (from `../`)
+
+EXTERNAL SOURCES:
+  CTableViewManager:
+    :path: ../
+
+SPEC CHECKSUMS:
+  CTableViewManager: d74044b354102b7ccb1d80895cb73f44b479854b
+
+PODFILE CHECKSUM: e83aa0b5258ee69c3c7ce955a8119950b2dce848
+
+COCOAPODS: 1.2.1

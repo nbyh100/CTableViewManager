@@ -1,0 +1,6 @@
+framework module CTableViewManager {
+  umbrella header "CTableViewManager-umbrella.h"
+
+  export *
+  module * { export * }
+}
