@@ -7,8 +7,11 @@
 //
 
 #import "CViewController.h"
+#import <CTableViewManager/CTableViewManager.h>
 
 @interface CViewController ()
+
+@property (nonatomic, strong) CTableViewManager *manager;
 
 @end
 
@@ -17,13 +20,10 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
-}
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    self.manager = [CTableViewManager new];
+    self.tableView.dataSource = self.manager;
+    self.tableView.delegate = self.manager;
 }
 
 @end

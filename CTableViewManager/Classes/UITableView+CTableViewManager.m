@@ -8,54 +8,9 @@
 
 #import "UITableView+CTableViewManager.h"
 #import <objc/runtime.h>
+#import "UITableView+Private.h"
 #import "CTableViewSectionModel.h"
 #import "CTableViewCellModel.h"
-
-#ifndef DEBUG
-    #define DEBUG 0
-#endif
-
-@interface CTableViewSectionModel (CellModels)
-
-@property (nonatomic, strong, readonly) NSMutableArray *cellModels;
-
-@end
-
-@implementation CTableViewSectionModel (CellModels)
-
-- (NSMutableArray *)cellModels
-{
-    NSMutableArray *cellModels = objc_getAssociatedObject(self, @selector(cellModels));
-    if (!cellModels) {
-        cellModels = [NSMutableArray array];
-        objc_setAssociatedObject(self, @selector(cellModels), cellModels, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-    return cellModels;
-}
-
-@end
-
-@interface CTableViewSectionModel (Private)
-
-@property (nonatomic, weak) UITableView *tableView;
-
-@end
-
-@interface CTableViewCellModel (Private)
-
-@property (nonatomic, weak) CTableViewSectionModel *sectionModel;
-
-@end
-
-@interface UITableView ()
-
-@property (nonatomic, strong) NSMutableArray *c_sectionModels;
-@property (nonatomic, strong) NSMutableSet *c_cellModels;
-@property (nonatomic, assign) BOOL c_isReload;
-@property (nonatomic, strong, readonly) CTableViewSectionModel *c_defaultSection;
-@property (nonatomic, strong) CTableViewCellModel *c_selectedCellModel;
-
-@end
 
 @implementation UITableView (CTableViewManager)
 
@@ -321,7 +276,7 @@
     return rows;
 }
 
-- (void)setFjr_isReload:(BOOL)c_isReload
+- (void)setC_isReload:(BOOL)c_isReload
 {
     objc_setAssociatedObject(self, @selector(c_isReload), @(c_isReload), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
@@ -340,7 +295,7 @@
     return self.c_sectionModels.firstObject;
 }
 
-- (void)setFjr_selectedCellModel:(CTableViewCellModel *)c_selectedCellModel
+- (void)setC_selectedCellModel:(CTableViewCellModel *)c_selectedCellModel
 {
     objc_setAssociatedObject(self, @selector(c_selectedCellModel), c_selectedCellModel, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
@@ -350,7 +305,7 @@
     return objc_getAssociatedObject(self, @selector(c_selectedCellModel));
 }
 
-- (void)setFjr_didSelectCellBlock:(void (^)(CTableViewCellModel *row, BOOL selectionIsChanged))c_didSelectCellBlock
+- (void)setC_didSelectCellBlock:(void (^)(CTableViewCellModel *row, BOOL selectionIsChanged))c_didSelectCellBlock
 {
     objc_setAssociatedObject(self, @selector(c_didSelectCellBlock), c_didSelectCellBlock, OBJC_ASSOCIATION_COPY);
 }
@@ -411,13 +366,13 @@
 
 - (void)raiseExceptionWithMessage:(NSString *)message
 {
-    if (DEBUG) {
-        @throw [NSException exceptionWithName:CTableViewManagerException
-                                       reason:message
-                                     userInfo:nil];
-    } else {
-        NSLog(@"%@", message);
-    }
+#if DEBUG
+    @throw [NSException exceptionWithName:CTableViewManagerException
+                                   reason:message
+                                 userInfo:nil];
+#else
+    NSLog(@"%@", message);
+#endif
 }
 
 - (void)ensureSectionExists:(CTableViewSectionModel *)sectionModel
@@ -449,154 +404,3 @@
 }
 
 @end
-
-@implementation UITableView (CTableViewHelpers)
-
-- (NSInteger)c_numberOfSections
-{
-    return self.c_sectionModels.count;
-}
-
-- (NSInteger)c_numberOfRowsInSection:(NSInteger)sectionIndex
-{
-    CTableViewSectionModel *section = self.c_sectionModels[sectionIndex];
-    return section.cellModels.count;
-}
-
-- (UITableViewCell *)c_cellForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    CTableViewSectionModel *section = self.c_sectionModels[indexPath.section];
-    CTableViewCellModel *cellModel = section.cellModels[indexPath.row];
-    NSString *cellId = NSStringFromClass([cellModel cellClass]);
-    UITableViewCell *cell = [self dequeueReusableCellWithIdentifier:cellId];
-    if (!cell) {
-        cell = [[[cellModel cellClass] alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId];
-    }
-    return cell;
-
-}
-
-- (UITableViewHeaderFooterView *)c_viewForHeaderInSection:(NSInteger)sectionIndex
-{
-    CTableViewSectionModel *section = self.c_sectionModels[sectionIndex];
-    UITableViewHeaderFooterView *view;
-    if (section.headerViewModel && [section.headerViewModel headerFooterViewClass]) {
-        NSString *headerId = NSStringFromClass([section.headerViewModel headerFooterViewClass]);
-        [self registerClass:[section.headerViewModel headerFooterViewClass] forHeaderFooterViewReuseIdentifier:headerId];
-        view = [self dequeueReusableHeaderFooterViewWithIdentifier:headerId];
-        if (!view) {
-            view = [[[section.headerViewModel headerFooterViewClass] alloc] initWithReuseIdentifier:headerId];
-        }
-        if ([view respondsToSelector:@selector(setViewModel:)]) {
-            [view performSelector:@selector(setViewModel:) withObject:section.headerViewModel];
-        }
-    } else {
-        // 防止出现白条
-        view = (UITableViewHeaderFooterView *)[UIView new];
-    }
-    return view;
-}
-
-- (UITableViewHeaderFooterView *)c_viewForFooterInSection:(NSInteger)sectionIndex
-{
-    CTableViewSectionModel *section = self.c_sectionModels[sectionIndex];
-    UITableViewHeaderFooterView *view;
-    if (section.footerViewModel && [section.footerViewModel headerFooterViewClass]) {
-        NSString *footerId = NSStringFromClass([section.footerViewModel headerFooterViewClass]);
-        [self registerClass:[section.footerViewModel headerFooterViewClass] forHeaderFooterViewReuseIdentifier:footerId];
-        view = [self dequeueReusableHeaderFooterViewWithIdentifier:footerId];
-        if (!view) {
-            view = [[[section.footerViewModel headerFooterViewClass] alloc] initWithReuseIdentifier:footerId];
-        }
-
-        if ([view respondsToSelector:@selector(setViewModel:)]) {
-            [view performSelector:@selector(setViewModel:) withObject:section.footerViewModel];
-        }
-    } else {
-        // 防止出现白条
-        view = (UITableViewHeaderFooterView *)[UIView new];
-    }
-    return view;
-}
-
-- (CGFloat)c_heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    CTableViewSectionModel *section = self.c_sectionModels[indexPath.section];
-    CTableViewCellModel *row = section.cellModels[indexPath.row];
-    if ([row respondsToSelector:@selector(cellHeight)]) {
-        return [row cellHeight];
-    } else {
-        return self.rowHeight;
-    }
-}
-
-- (CGFloat)c_heightForHeaderInSection:(NSInteger)sectionIndex
-{
-    CTableViewSectionModel *section = self.c_sectionModels[sectionIndex];
-    if (section.headerViewModel && [section.headerViewModel respondsToSelector:@selector(headerFooterViewHeight)]) {
-        return [section.headerViewModel headerFooterViewHeight];
-    } else {
-        if (section.headerHeight > 0) {
-            return section.headerHeight;
-        }
-        return 0.01;
-    }
-}
-
-- (CGFloat)c_heightForFooterInSection:(NSInteger)sectionIndex
-{
-    CTableViewSectionModel *section = self.c_sectionModels[sectionIndex];
-    if (section.footerViewModel && [section.footerViewModel respondsToSelector:@selector(headerFooterViewHeight)]) {
-        return [section.footerViewModel headerFooterViewHeight];
-    } else {
-        if (section.footerHeight > 0) {
-            return section.headerHeight;
-        }
-        return 0.01;
-    }
-}
-
-- (void)c_willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    CTableViewSectionModel *section = self.c_sectionModels[indexPath.section];
-    CTableViewCellModel *cellModel = section.cellModels[indexPath.row];
-    cell.selectionStyle = (cellModel.cellActionEnabled && cellModel.highlightWhenTapCell) ? UITableViewCellSelectionStyleDefault : UITableViewCellSelectionStyleNone;
-    if ([cell respondsToSelector:@selector(setCellModel:)]) {
-        [cell performSelector:@selector(setCellModel:) withObject:cellModel];
-    }
-}
-
-- (void)c_didEndDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if ([cell respondsToSelector:@selector(didEndDisplay)]) {
-        [cell performSelector:@selector(didEndDisplay)];
-    }
-}
-
-- (void)c_didSelectRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    CTableViewSectionModel *section = self.c_sectionModels[indexPath.section];
-    CTableViewCellModel *cellModel = section.cellModels[indexPath.row];
-    BOOL selectionIsChanged = cellModel != self.c_selectedCellModel;
-    self.c_selectedCellModel = cellModel;
-
-    if (cellModel.cellActionEnabled) {
-        if (cellModel.didSelectCellBlock) {
-            cellModel.didSelectCellBlock(cellModel, selectionIsChanged);
-        }
-        if (self.c_didSelectCellBlock) {
-            self.c_didSelectCellBlock(cellModel, selectionIsChanged);
-        }
-    }
-
-    if (cellModel.autoDeselect) {
-        [self deselectRowAtIndexPath:indexPath animated:YES];
-    }
-}
-
-- (void)c_didDeselectRowAtIndexPath:(NSIndexPath *)indexPath
-{
-}
-
-@end
-

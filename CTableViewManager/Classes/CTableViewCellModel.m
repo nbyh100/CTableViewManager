@@ -30,8 +30,8 @@
 
 @property (nonatomic, weak) CTableViewSectionModel *sectionModel;
 
-@property (nonatomic, assign) Class _cellClass;
-@property (nonatomic, assign) CGFloat _cellHeight;
+@property (nonatomic, assign) Class cellClass;
+@property (nonatomic, assign) CGFloat cellHeight;
 
 @end
 
@@ -41,8 +41,8 @@
 {
     CTableViewCellModel *instance = [[self alloc] init];
     if (instance) {
-        instance._cellClass = classname;
-        instance._cellHeight = height;
+        instance.cellClass = classname;
+        instance.cellHeight = height;
         instance.cellActionEnabled = NO;
     }
     return instance;
@@ -70,12 +70,12 @@
 
 - (Class)cellClass
 {
-    return self._cellClass;
+    return self.cellClass;
 }
 
 - (CGFloat)cellHeight
 {
-    return self._cellHeight;
+    return self.cellHeight;
 }
 
 @end
