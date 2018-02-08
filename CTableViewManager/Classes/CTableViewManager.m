@@ -11,21 +11,18 @@
 
 @implementation CTableViewManager
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-{
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return tableView.c_sectionModels.count;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
-{
-    CTableViewSectionModel *sectionModel = tableView.c_sectionModels[section];
-    return sectionModel.cellModels.count;
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    id<CTableViewSectionModel> sectionModel = tableView.c_sectionModels[section];
+    return CSectionGetCells(sectionModel).count;
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    CTableViewSectionModel *section = tableView.c_sectionModels[indexPath.section];
-    CTableViewCellModel *cellModel = section.cellModels[indexPath.row];
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    id<CTableViewSectionModel> sectionModel = tableView.c_sectionModels[indexPath.section];
+    id<CTableViewCellModel> cellModel = CSectionGetCells(sectionModel)[indexPath.row];
     NSString *cellId = NSStringFromClass([cellModel cellClass]);
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellId];
     if (!cell) {
@@ -34,19 +31,16 @@
     return cell;
 }
 
-- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
-{
-    CTableViewSectionModel *sectionModel = tableView.c_sectionModels[section];
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    id<CTableViewSectionModel> sectionModel = tableView.c_sectionModels[section];
     UITableViewHeaderFooterView *view;
-    if (sectionModel.headerViewModel && [sectionModel.headerViewModel headerFooterViewClass]) {
-        NSString *headerId = NSStringFromClass([sectionModel.headerViewModel headerFooterViewClass]);
-        [tableView registerClass:[sectionModel.headerViewModel headerFooterViewClass] forHeaderFooterViewReuseIdentifier:headerId];
+    if ([(NSObject *)sectionModel respondsToSelector:@selector(headerViewModel)]) {
+        Class headerViewClass = [[sectionModel headerViewModel] viewClass];
+        NSString *headerId = NSStringFromClass(headerViewClass);
+        [tableView registerClass:headerViewClass forHeaderFooterViewReuseIdentifier:headerId];
         view = [tableView dequeueReusableHeaderFooterViewWithIdentifier:headerId];
         if (!view) {
-            view = [[[sectionModel.headerViewModel headerFooterViewClass] alloc] initWithReuseIdentifier:headerId];
-        }
-        if ([view respondsToSelector:@selector(setViewModel:)]) {
-            [view performSelector:@selector(setViewModel:) withObject:sectionModel.headerViewModel];
+            view = [[headerViewClass alloc] initWithReuseIdentifier:headerId];
         }
     } else {
         // 防止出现白条
@@ -55,20 +49,16 @@
     return view;
 }
 
-- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
-{
-    CTableViewSectionModel *sectionModel = tableView.c_sectionModels[section];
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
+    id<CTableViewSectionModel> sectionModel = tableView.c_sectionModels[section];
     UITableViewHeaderFooterView *view;
-    if (sectionModel.footerViewModel && [sectionModel.footerViewModel headerFooterViewClass]) {
-        NSString *footerId = NSStringFromClass([sectionModel.footerViewModel headerFooterViewClass]);
-        [tableView registerClass:[sectionModel.footerViewModel headerFooterViewClass] forHeaderFooterViewReuseIdentifier:footerId];
+    if ([(NSObject *)sectionModel respondsToSelector:@selector(footerViewModel)]) {
+        Class footerViewClass = [[sectionModel footerViewModel] viewClass];
+        NSString *footerId = NSStringFromClass(footerViewClass);
+        [tableView registerClass:footerViewClass forHeaderFooterViewReuseIdentifier:footerId];
         view = [tableView dequeueReusableHeaderFooterViewWithIdentifier:footerId];
         if (!view) {
-            view = [[[sectionModel.footerViewModel headerFooterViewClass] alloc] initWithReuseIdentifier:footerId];
-        }
-
-        if ([view respondsToSelector:@selector(setViewModel:)]) {
-            [view performSelector:@selector(setViewModel:) withObject:sectionModel.footerViewModel];
+            view = [[footerViewClass alloc] initWithReuseIdentifier:footerId];
         }
     } else {
         // 防止出现白条
@@ -77,13 +67,12 @@
     return view;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSMutableDictionary *tmpCells;
 
-    CTableViewSectionModel *section = tableView.c_sectionModels[indexPath.section];
-    CTableViewCellModel *cellModel = section.cellModels[indexPath.row];
-    if ([cellModel respondsToSelector:@selector(cellHeight)]) {
+    id<CTableViewSectionModel> sectionModel = tableView.c_sectionModels[indexPath.section];
+    id<CTableViewCellModel> cellModel = CSectionGetCells(sectionModel)[indexPath.row];
+    if ([(NSObject *)cellModel respondsToSelector:@selector(cellHeight)]) {
         CGFloat cellHeight = [cellModel cellHeight];
         if (cellHeight == UITableViewAutomaticDimension) {
             if (!tmpCells) {
@@ -91,12 +80,14 @@
             }
             Class cellClass = [cellModel cellClass];
             NSString *cellClassString = NSStringFromClass(cellClass);
-            UITableViewCell<CTableViewCellProtocol> *tmpCell = tmpCells[cellClassString];
+            UITableViewCell *tmpCell = tmpCells[cellClassString];
             if (!tmpCell) {
                 tmpCell = [[cellClass alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellClassString];
                 tmpCells[cellClassString] = tmpCell;
             }
-            [tmpCell setCellModel:cellModel];
+            if ([(NSObject *)cellModel respondsToSelector:@selector(willDisplay:)]) {
+                [cellModel willDisplay:tmpCell];
+            }
             CGSize size = [tmpCell.contentView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
             return size.height;
         } else {
@@ -107,72 +98,54 @@
     }
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
-{
-    CTableViewSectionModel *sectionModel = tableView.c_sectionModels[section];
-    if (sectionModel.headerViewModel && [sectionModel.headerViewModel respondsToSelector:@selector(headerFooterViewHeight)]) {
-        return [sectionModel.headerViewModel headerFooterViewHeight];
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    id<CTableViewSectionModel> sectionModel = tableView.c_sectionModels[section];
+    if ([(NSObject *)sectionModel respondsToSelector:@selector(headerViewModel)] && [(NSObject *)[sectionModel headerViewModel] respondsToSelector:@selector(viewHeight)]) {
+        return [[sectionModel headerViewModel] viewHeight];
     } else {
-        if (sectionModel.headerHeight > 0) {
-            return sectionModel.headerHeight;
-        }
         return 0.01;
     }
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
-{
-    CTableViewSectionModel *sectionModel = tableView.c_sectionModels[section];
-    if (sectionModel.footerViewModel && [sectionModel.footerViewModel respondsToSelector:@selector(headerFooterViewHeight)]) {
-        return [sectionModel.footerViewModel headerFooterViewHeight];
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+    id<CTableViewSectionModel> sectionModel = tableView.c_sectionModels[section];
+    if ([(NSObject *)sectionModel respondsToSelector:@selector(footerViewModel)] && [(NSObject *)[sectionModel footerViewModel] respondsToSelector:@selector(viewHeight)]) {
+        return [[sectionModel footerViewModel] viewHeight];
     } else {
-        if (sectionModel.footerHeight > 0) {
-            return sectionModel.headerHeight;
-        }
         return 0.01;
     }
 }
 
-- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    CTableViewSectionModel *sectionModel = tableView.c_sectionModels[indexPath.section];
-    CTableViewCellModel *cellModel = sectionModel.cellModels[indexPath.row];
-    cell.selectionStyle = (cellModel.cellActionEnabled && cellModel.highlightWhenTapCell) ? UITableViewCellSelectionStyleDefault : UITableViewCellSelectionStyleNone;
-    if ([cell respondsToSelector:@selector(setCellModel:)]) {
-        [cell performSelector:@selector(setCellModel:) withObject:cellModel];
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
+    id<CTableViewSectionModel> sectionModel = tableView.c_sectionModels[indexPath.section];
+    id<CTableViewCellModel> cellModel = CSectionGetCells(sectionModel)[indexPath.row];
+    if ([(NSObject *)cellModel respondsToSelector:@selector(willDisplay:)]) {
+        [cellModel willDisplay:cell];
     }
 }
 
-- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if ([cell respondsToSelector:@selector(didEndDisplay)]) {
-        [cell performSelector:@selector(didEndDisplay)];
+- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
+    id<CTableViewSectionModel> sectionModel = tableView.c_sectionModels[indexPath.section];
+    id<CTableViewCellModel> cellModel = CSectionGetCells(sectionModel)[indexPath.row];
+    if ([(NSObject *)cellModel respondsToSelector:@selector(didEndDisplay:)]) {
+        [cellModel didEndDisplay:cell];
     }
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    CTableViewSectionModel *sectionModel = tableView.c_sectionModels[indexPath.section];
-    CTableViewCellModel *cellModel = sectionModel.cellModels[indexPath.row];
-    BOOL selectionIsChanged = cellModel != tableView.c_selectedCellModel;
-    tableView.c_selectedCellModel = cellModel;
-
-    if (cellModel.cellActionEnabled) {
-        if (cellModel.didSelectCellBlock) {
-            cellModel.didSelectCellBlock(cellModel, selectionIsChanged);
-        }
-        if (tableView.c_didSelectCellBlock) {
-            tableView.c_didSelectCellBlock(cellModel, selectionIsChanged);
-        }
-    }
-
-    if (cellModel.autoDeselect) {
-        [tableView deselectRowAtIndexPath:indexPath animated:YES];
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    id<CTableViewSectionModel> sectionModel = tableView.c_sectionModels[indexPath.section];
+    id<CTableViewCellModel> cellModel = CSectionGetCells(sectionModel)[indexPath.row];
+    if ([(NSObject *)cellModel respondsToSelector:@selector(didSelect)]) {
+        [cellModel didSelect];
     }
 }
 
-- (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath
-{
+- (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
+    id<CTableViewSectionModel> sectionModel = tableView.c_sectionModels[indexPath.section];
+    id<CTableViewCellModel> cellModel = CSectionGetCells(sectionModel)[indexPath.row];
+    if ([(NSObject *)cellModel respondsToSelector:@selector(didDeselect)]) {
+        [cellModel didDeselect];
+    }
 }
 
 @end

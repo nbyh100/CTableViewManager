@@ -7,17 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Protocols.h"
 
 #define CTableViewManagerException @"CTableViewManagerException"
 
-@class CTableViewSectionModel;
-@class CTableViewCellModel;
- 
 @interface UITableView (CTableViewManager)
 
-@property (nonatomic, strong, readonly) CTableViewSectionModel *c_defaultSection; // 第一个section，没有会自动创建
-@property (nonatomic, strong, readonly) CTableViewCellModel *c_selectedCellModel; // 选中的cell
-@property (nonatomic, copy) void (^c_didSelectCellBlock)(CTableViewCellModel *cellModel, BOOL selectionIsChanged); // 选中cell的回调，selectionIsChanged表示是否为第一次选中。如果cell的种类比较多，不推荐使用。建议使用CTableViewCellModel的didSelectCellBlock
+@property (nonatomic, strong, readonly) id<CTableViewSectionModel> c_defaultSection; // 第一个section，没有会自动创建
 
 /**
  重新加载数据源，会调用reloadData方法
@@ -40,8 +36,7 @@
 
  @return 是否加入
  */
-- (BOOL)c_sectionInTableView:(CTableViewSectionModel *)sectionModel;
-
+- (BOOL)c_sectionInTableView:(id<CTableViewSectionModel>)sectionModel;
 
 /**
  检查cell是否已经加入tableview
@@ -50,8 +45,7 @@
 
  @return 是否加入
  */
-- (BOOL)c_cellInTableView:(CTableViewCellModel *)cellModel;
-
+- (BOOL)c_cellInTableView:(id<CTableViewCellModel>)cellModel;
 
 /**
  获取cell对应的indexPath
@@ -60,14 +54,16 @@
 
  @return NSIndexPath
  */
-- (NSIndexPath *)c_indexPathForCell:(CTableViewCellModel *)cellModel;
+- (NSIndexPath *)c_indexPathForCellModel:(id<CTableViewCellModel>)cellModel;
+
+- (UITableViewCell *)c_cellForCellModel:(id<CTableViewCellModel>)cellModel;
 
 /**
  添加section
 
  @param sectionModel section数据模型
  */
-- (void)c_addSection:(CTableViewSectionModel *)sectionModel;
+- (void)c_addSection:(id<CTableViewSectionModel>)sectionModel;
 
 /**
  在一个section后插入section
@@ -75,8 +71,8 @@
  @param sectionModel        要插入的section数据模型
  @param anotherSectionModel 目标section数据模型
  */
-- (void)c_insertSection:(CTableViewSectionModel *)sectionModel
-             afterSection:(CTableViewSectionModel *)anotherSectionModel;
+- (void)c_insertSection:(id<CTableViewSectionModel>)sectionModel
+             afterSection:(id<CTableViewSectionModel>)anotherSectionModel;
 
 /**
  在一个section前插入section
@@ -84,36 +80,36 @@
  @param sectionModel        要插入的section数据模型
  @param anotherSectionModel 目标section数据模型
  */
-- (void)c_insertSection:(CTableViewSectionModel *)sectionModel
-            beforeSection:(CTableViewSectionModel *)anotherSectionModel;
+- (void)c_insertSection:(id<CTableViewSectionModel>)sectionModel
+            beforeSection:(id<CTableViewSectionModel>)anotherSectionModel;
 
 /**
  重新加载section
 
  @param sectionModel section数据模型
  */
-- (void)c_reloadSection:(CTableViewSectionModel *)sectionModel;
+- (void)c_reloadSection:(id<CTableViewSectionModel>)sectionModel;
 
 /**
  删除section
 
  @param sectionModel section数据模型
  */
-- (void)c_deleteSection:(CTableViewSectionModel *)sectionModel;
+- (void)c_deleteSection:(id<CTableViewSectionModel>)sectionModel;
 
 /**
  在第一个section添加一个cell。如果没有第一个section，则自动创建
 
  @param cellModel cell数据模型
  */
-- (void)c_addCell:(CTableViewCellModel *)cellModel;
+- (void)c_addCell:(id<CTableViewCellModel>)cellModel;
 
 /**
  在第一个section添加多个cell。如果没有第一个section，则自动创建
 
  @param cellModels cell数据模型
  */
-- (void)c_addCells:(NSArray<CTableViewCellModel *> *)cellModels;
+- (void)c_addCells:(NSArray<id<CTableViewCellModel>> *)cellModels;
 
 /**
  在第一个section的cell后面插入cell。如果没有第一个section，则自动创建
@@ -121,8 +117,8 @@
  @param cellModel        cell数据模型
  @param anotherCellModel 目标cell数据模型
  */
-- (void)c_insertCell:(CTableViewCellModel *)cellModel
-             afterCell:(CTableViewCellModel *)anotherCellModel;
+- (void)c_insertCell:(id<CTableViewCellModel>)cellModel
+             afterCell:(id<CTableViewCellModel>)anotherCellModel;
 
 /**
  在第一个section的cell后面批量插入cell。如果没有第一个section，则自动创建
@@ -130,8 +126,8 @@
  @param cellModels       cell数据模型数组
  @param anotherCellModel 目标cell数据模型
  */
-- (void)c_insertCells:(NSArray<CTableViewCellModel *> *)cellModels
-              afterCell:(CTableViewCellModel *)anotherCellModel;
+- (void)c_insertCells:(NSArray<id<CTableViewCellModel>> *)cellModels
+              afterCell:(id<CTableViewCellModel>)anotherCellModel;
 
 /**
  在第一个section的cell前面插入cell。如果没有第一个section，则自动创建
@@ -139,8 +135,8 @@
  @param cellModel        cell数据模型
  @param anotherCellModel 目标cell数据模型
  */
-- (void)c_insertCell:(CTableViewCellModel *)cellModel
-            beforeCell:(CTableViewCellModel *)anotherCellModel;
+- (void)c_insertCell:(id<CTableViewCellModel>)cellModel
+            beforeCell:(id<CTableViewCellModel>)anotherCellModel;
 
 /**
  在第一个section的cell前面批量插入cell。如果没有第一个section，则自动创建
@@ -149,8 +145,8 @@
  @param anotherCellModel 目标cell数据模型
  */
 
-- (void)c_insertCells:(NSArray<CTableViewCellModel *> *)cellModels
-             beforeCell:(CTableViewCellModel *)anotherCellModel;
+- (void)c_insertCells:(NSArray<id<CTableViewCellModel>> *)cellModels
+             beforeCell:(id<CTableViewCellModel>)anotherCellModel;
 
 /**
  添加一个cell
@@ -158,8 +154,8 @@
  @param cellModel    cell数据模型
  @param sectionModel 目标section数据模型
  */
-- (void)c_addCell:(CTableViewCellModel *)cellModel
-          inSection:(CTableViewSectionModel *)sectionModel;
+- (void)c_addCell:(id<CTableViewCellModel>)cellModel
+          inSection:(id<CTableViewSectionModel>)sectionModel;
 
 /**
  添加多个cell
@@ -167,8 +163,8 @@
  @param cellModels   cell数据模型数组
  @param sectionModel 目标section数据模型
  */
-- (void)c_addCells:(NSArray<CTableViewCellModel *> *)cellModels
-           inSection:(CTableViewSectionModel *)sectionModel;
+- (void)c_addCells:(NSArray<id<CTableViewCellModel>> *)cellModels
+           inSection:(id<CTableViewSectionModel>)sectionModel;
 
 /**
  在cell后面插入cell
@@ -177,9 +173,9 @@
  @param anotherCellModel 目标cell数据模型
  @param sectionModel     目标section数据模型
  */
-- (void)c_insertCell:(CTableViewCellModel *)cellModel
-             afterCell:(CTableViewCellModel *)anotherCellModel
-             inSection:(CTableViewSectionModel *)sectionModel;
+- (void)c_insertCell:(id<CTableViewCellModel>)cellModel
+             afterCell:(id<CTableViewCellModel>)anotherCellModel
+             inSection:(id<CTableViewSectionModel>)sectionModel;
 
 /**
  在cell后面批量插入cell
@@ -188,9 +184,9 @@
  @param anotherCellModel 目标cell数据模型
  @param sectionModel     目标section数据模型
  */
-- (void)c_insertCells:(NSArray<CTableViewCellModel *> *)cellModels
-              afterCell:(CTableViewCellModel *)anotherCellModel
-              inSection:(CTableViewSectionModel *)sectionModel;
+- (void)c_insertCells:(NSArray<id<CTableViewCellModel>> *)cellModels
+              afterCell:(id<CTableViewCellModel>)anotherCellModel
+              inSection:(id<CTableViewSectionModel>)sectionModel;
 
 /**
  在cell前面插入cell
@@ -199,9 +195,9 @@
  @param anotherCellModel 目标cell数据模型
  @param sectionModel     目标section数据模型
  */
-- (void)c_insertCell:(CTableViewCellModel *)cellModel
-            beforeCell:(CTableViewCellModel *)anotherCellModel
-             inSection:(CTableViewSectionModel *)sectionModel;
+- (void)c_insertCell:(id<CTableViewCellModel>)cellModel
+            beforeCell:(id<CTableViewCellModel>)anotherCellModel
+             inSection:(id<CTableViewSectionModel>)sectionModel;
 
 /**
  在cell前面批量插入cell
@@ -211,51 +207,51 @@
  @param sectionModel     目标section数据模型
  */
 
-- (void)c_insertCells:(NSArray<CTableViewCellModel *> *)cellModels
-             beforeCell:(CTableViewCellModel *)anotherCellModel
-              inSection:(CTableViewSectionModel *)sectionModel;
+- (void)c_insertCells:(NSArray<id<CTableViewCellModel>> *)cellModels
+             beforeCell:(id<CTableViewCellModel>)anotherCellModel
+              inSection:(id<CTableViewSectionModel>)sectionModel;
 
 /**
  重新加载cell
 
  @param cellModel cell数据模型
  */
-- (void)c_reloadCell:(CTableViewCellModel *)cellModel;
+- (void)c_reloadCell:(id<CTableViewCellModel>)cellModel;
 
 /**
  批量重新加载cell
 
  @param cellModels cell数据模型数组
  */
-- (void)c_reloadCells:(NSArray<CTableViewCellModel *> *)cellModels;
+- (void)c_reloadCells:(NSArray<id<CTableViewCellModel>> *)cellModels;
 
 /**
  删除cell
 
  @param cellModel cell数据模型
  */
-- (void)c_deleteCell:(CTableViewCellModel *)cellModel;
+- (void)c_deleteCell:(id<CTableViewCellModel>)cellModel;
 
 /**
  批量删除cell
 
  @param cellModels cell数据模型数组
  */
-- (void)c_deleteCells:(NSArray<CTableViewCellModel *> *)cellModels;
+- (void)c_deleteCells:(NSArray<id<CTableViewCellModel>> *)cellModels;
 
 /**
  选择cell
 
  @param cellModel cell数据模型
  */
-- (void)c_selectCell:(CTableViewCellModel *)cellModel;
+- (void)c_selectCell:(id<CTableViewCellModel>)cellModel;
 
 /**
  取消选择cell
 
  @param cellModel cell数据模型
  */
-- (void)c_deselectCell:(CTableViewCellModel *)cellModel;
+- (void)c_deselectCell:(id<CTableViewCellModel>)cellModel;
 
 @end
 
