@@ -1,5 +1,5 @@
 PODS:
-  - CTableViewManager (0.1.0)
+  - CTableViewManager (2.0.0)
 
 DEPENDENCIES:
   - CTableViewManager (from `../`)
@@ -9,8 +9,8 @@ EXTERNAL SOURCES:
     :path: ../
 
 SPEC CHECKSUMS:
-  CTableViewManager: d74044b354102b7ccb1d80895cb73f44b479854b
+  CTableViewManager: 6210dabc9423ee0ab1bf697b0bea9df869aa7755
 
-PODFILE CHECKSUM: e83aa0b5258ee69c3c7ce955a8119950b2dce848
+PODFILE CHECKSUM: bf737bf6cba52d3e888bde8f6b293c27af86da8d
 
 COCOAPODS: 1.2.1

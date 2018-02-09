@@ -7,7 +7,7 @@
 //
 
 #import "CTableViewManager.h"
-#import "UITableView+Private.h"
+#import "Private.h"
 
 @implementation CTableViewManager
 
@@ -129,6 +129,34 @@
     id<CTableViewCellModel> cellModel = CSectionGetCells(sectionModel)[indexPath.row];
     if ([(NSObject *)cellModel respondsToSelector:@selector(didEndDisplay:)]) {
         [cellModel didEndDisplay:cell];
+    }
+}
+
+- (void)tableView:(UITableView *)tableView willDisplayHeaderView:(UIView *)view forSection:(NSInteger)section {
+    id<CTableViewSectionModel> sectionModel = tableView.c_sectionModels[section];
+    if ([(NSObject *)sectionModel respondsToSelector:@selector(headerViewModel)] && [(NSObject *)[sectionModel headerViewModel] respondsToSelector:@selector(willDisplay:)]) {
+        [[sectionModel headerViewModel] willDisplay:view];
+    }
+}
+
+- (void)tableView:(UITableView *)tableView didEndDisplayingHeaderView:(UIView *)view forSection:(NSInteger)section {
+    id<CTableViewSectionModel> sectionModel = tableView.c_sectionModels[section];
+    if ([(NSObject *)sectionModel respondsToSelector:@selector(headerViewModel)] && [(NSObject *)[sectionModel headerViewModel] respondsToSelector:@selector(didEndDisplay:)]) {
+        [[sectionModel headerViewModel] didEndDisplay:view];
+    }
+}
+
+- (void)tableView:(UITableView *)tableView willDisplayFooterView:(UIView *)view forSection:(NSInteger)section {
+    id<CTableViewSectionModel> sectionModel = tableView.c_sectionModels[section];
+    if ([(NSObject *)sectionModel respondsToSelector:@selector(footerViewModel)] && [(NSObject *)[sectionModel footerViewModel] respondsToSelector:@selector(willDisplay:)]) {
+        [[sectionModel footerViewModel] willDisplay:view];
+    }
+}
+
+- (void)tableView:(UITableView *)tableView didEndDisplayingFooterView:(UIView *)view forSection:(NSInteger)section {
+    id<CTableViewSectionModel> sectionModel = tableView.c_sectionModels[section];
+    if ([(NSObject *)sectionModel respondsToSelector:@selector(footerViewModel)] && [(NSObject *)[sectionModel footerViewModel] respondsToSelector:@selector(didEndDisplay:)]) {
+        [[sectionModel footerViewModel] didEndDisplay:view];
     }
 }
 

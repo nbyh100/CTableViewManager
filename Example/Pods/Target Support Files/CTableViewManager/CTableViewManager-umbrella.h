@@ -14,7 +14,6 @@
 #import "Helpers.h"
 #import "Protocols.h"
 #import "UITableView+CTableViewManager.h"
-#import "UITableView+Private.h"
 
 FOUNDATION_EXPORT double CTableViewManagerVersionNumber;
 FOUNDATION_EXPORT const unsigned char CTableViewManagerVersionString[];

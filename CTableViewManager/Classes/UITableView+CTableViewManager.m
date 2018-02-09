@@ -8,7 +8,7 @@
 
 #import "UITableView+CTableViewManager.h"
 #import <objc/runtime.h>
-#import "UITableView+Private.h"
+#import "Private.h"
 #import "Helpers.h"
 
 @interface CTableViewDefaultSection : NSObject<CTableViewSectionModel>

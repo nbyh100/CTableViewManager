@@ -14,6 +14,4 @@
 
 @interface CTableViewManager : NSObject<UITableViewDataSource, UITableViewDelegate>
 
-@property (nonatomic, weak) id<UIScrollViewDelegate> delegate;
-
 @end

@@ -13,8 +13,8 @@
 
 @optional
 - (CGFloat)viewHeight;
-- (void)willDisplay:(UITableViewHeaderFooterView *)view;
-- (void)didEndDisplay:(UITableViewHeaderFooterView *)view;
+- (void)willDisplay:(UIView *)view;
+- (void)didEndDisplay:(UIView *)view;
 
 @end
 

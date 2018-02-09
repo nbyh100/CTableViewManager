@@ -1,29 +1,21 @@
 # CTableViewManager
 
-[![CI Status](http://img.shields.io/travis/nbyh100@sina.com/CTableViewManager.svg?style=flat)](https://travis-ci.org/nbyh100@sina.com/CTableViewManager)
-[![Version](https://img.shields.io/cocoapods/v/CTableViewManager.svg?style=flat)](http://cocoapods.org/pods/CTableViewManager)
-[![License](https://img.shields.io/cocoapods/l/CTableViewManager.svg?style=flat)](http://cocoapods.org/pods/CTableViewManager)
-[![Platform](https://img.shields.io/cocoapods/p/CTableViewManager.svg?style=flat)](http://cocoapods.org/pods/CTableViewManager)
+UITableView管理工具，使用面向对象的方式替代直接使用数据源和代理。
 
 ## Example
 
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
+```objective-c
+self.manager = [CTableViewManager new];
+self.tableView.dataSource = self.manager;
+self.tableView.delegate = self.manager;
 
-## Requirements
+[self.tableView c_reloadDataWithBlock:^{
+    MyCellModel *cellModel = [MyCellModel new];
+    cellModel.title = @"My Title 1";
+    [self.tableView c_addCell:cellModel];
 
-## Installation
-
-CTableViewManager is available through [CocoaPods](http://cocoapods.org). To install
-it, simply add the following line to your Podfile:
-
-```ruby
-pod 'CTableViewManager'
+    MyCellModel *cellModel2 = [MyCellModel new];
+    cellModel2.title = @"My Title 2";
+    [self.tableView c_addCell:cellModel2];
+}];
 ```
-
-## Author
-
-nbyh100@sina.com, jiuzhou.zhang@fengjr.com
-
-## License
-
-CTableViewManager is available under the MIT license. See the LICENSE file for more info.

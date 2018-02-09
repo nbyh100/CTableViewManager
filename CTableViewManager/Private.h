@@ -8,6 +8,10 @@
 #import <UIKit/UIKit.h>
 #import "Protocols.h"
 
+void CSectionSetTableView (id<CTableViewSectionModel> sectionModel, UITableView *tableView);
+void CCellSetSection (id<CTableViewCellModel> cellModel, id<CTableViewSectionModel> sectionModel);
+NSMutableArray<id<CTableViewCellModel>> *CSectionGetCells (id<CTableViewSectionModel> sectionModel);
+
 @interface UITableView (Private)
 
 @property (nonatomic, strong) NSMutableArray *c_sectionModels;
