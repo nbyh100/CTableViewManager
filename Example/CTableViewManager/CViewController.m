@@ -58,7 +58,6 @@
         myPayload.selected = YES;
         return myPayload;
     }];
-    NSLog(@"Select %@", self.cellData.cellID);
 }
 
 - (void)didDeselect {
@@ -67,7 +66,6 @@
         myPayload.selected = NO;
         return myPayload;
     }];
-    NSLog(@"Deselect %@", self.cellData.cellID);
 }
 
 @end
