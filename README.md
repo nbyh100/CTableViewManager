@@ -1,21 +1,25 @@
 # CTableViewManager
 
-UITableView管理工具，使用面向对象的方式替代直接使用数据源和代理。
+UITableView管理工具，使用面向对象、数据驱动UI的方式。
 
-## Example
+## 示例
 
 ```objective-c
-self.manager = [CTableViewManager new];
-self.tableView.dataSource = self.manager;
-self.tableView.delegate = self.manager;
+self.manager = [[CTableViewManager alloc] initWithTableView:self.tableView];
+[self.manager performReloadBlock:^{
+    CTableViewSectionManager *sm = [self.manager addSectionWithID:@"default"];
+    for (NSInteger i = 0; i < 10; i++) {
+        CSimpleCellPayload *p = [CSimpleCellPayload new];
+        p.title = [NSString stringWithFormat:@"Title %ld", i];
+        [sm addCellWithID:[NSString stringWithFormat:@"cell%ld", i] payload:p];
+    }
+}];
 
-[self.tableView c_reloadDataWithBlock:^{
-    MyCellModel *cellModel = [MyCellModel new];
-    cellModel.title = @"My Title 1";
-    [self.tableView c_addCell:cellModel];
-
-    MyCellModel *cellModel2 = [MyCellModel new];
-    cellModel2.title = @"My Title 2";
-    [self.tableView c_addCell:cellModel2];
+// 不会触发reloadCell
+CTableViewSectionManager *sm = [self.manager sectionWithID:@"default"];
+[sm refreshCellWithID:@"cell2" block:^NSObject<ITableViewCellPayload> * _Nonnull(NSObject<ITableViewCellPayload> *_Nonnull data) {
+    CSimpleCellPayload *p = [(NSObject *)data copy];
+    p.title = @"updated";
+    return p;
 }];
 ```
