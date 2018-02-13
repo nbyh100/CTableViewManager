@@ -23,3 +23,67 @@ CTableViewSectionManager *sm = [self.manager sectionWithID:@"default"];
     return p;
 }];
 ```
+
+## Cell数据协议
+```objective-c
+@interface CSimpleCellPayload : NSObject<ITableViewCellPayload>
+
+@property (nonatomic, strong) NSString *title;
+@property (nonatomic, assign) BOOL selected;
+
+@end
+
+@implementation CSimpleCellPayload
+
+@synthesize sectionManager;
+@synthesize cellData;
+
+- (nonnull id)copyWithZone:(nullable NSZone *)zone {
+    CSimpleCellPayload *payload = [[self class] new];
+    payload.title = self.title;
+    payload.selected = self.selected;
+    return payload;
+}
+
+- (Class)cellClass {
+    return [UITableViewCell class];
+}
+
+- (CGFloat)cellHeight {
+    return 100;
+}
+
+- (void)willDisplay:(UITableViewCell *)cell {
+}
+
+- (void)refresh:(UITableViewCell *)cell {
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    cell.textLabel.text = self.title;
+    if (cell.selected) {
+        cell.backgroundColor = [UIColor yellowColor];
+    } else {
+        cell.backgroundColor = [UIColor whiteColor];
+    }
+}
+
+- (void)didEndDisplaying:(UITableViewCell *)cell {
+}
+
+- (void)didSelect {
+    [self.sectionManager refreshCellWithID:self.cellData.cellID block:^NSObject<ITableViewCellPayload> * _Nonnull(NSObject<ITableViewCellPayload> * _Nonnull payload) {
+        CSimpleCellPayload *myPayload = (CSimpleCellPayload *)payload;
+        myPayload.selected = YES;
+        return myPayload;
+    }];
+}
+
+- (void)didDeselect {
+    [self.sectionManager refreshCellWithID:self.cellData.cellID block:^NSObject<ITableViewCellPayload> * _Nonnull(NSObject<ITableViewCellPayload> * _Nonnull payload) {
+        CSimpleCellPayload *myPayload = (CSimpleCellPayload *)payload;
+        myPayload.selected = NO;
+        return myPayload;
+    }];
+}
+
+@end
+```
