@@ -9,6 +9,8 @@
 #import "CTableViewManager.h"
 #import "Private.h"
 
+static NSMutableDictionary *tmpCells;
+
 @implementation CTableViewManager
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -68,8 +70,6 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    static NSMutableDictionary *tmpCells;
-
     id<CTableViewSectionModel> sectionModel = tableView.c_sectionModels[indexPath.section];
     id<CTableViewCellModel> cellModel = CSectionGetCells(sectionModel)[indexPath.row];
     if ([(NSObject *)cellModel respondsToSelector:@selector(cellHeight)]) {
@@ -89,7 +89,7 @@
                 [cellModel willDisplay:tmpCell];
             }
             CGSize size = [tmpCell.contentView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
-            return size.height;
+            return size.height + 1 / [UIScreen mainScreen].scale;
         } else {
             return cellHeight;
         }

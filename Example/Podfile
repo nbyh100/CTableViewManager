@@ -3,6 +3,7 @@ use_frameworks!
 
 target 'CTableViewManager_Example' do
   pod 'CTableViewManager', :path => '../'
+  pod 'Masonry'
 
   target 'CTableViewManager_Tests' do
     inherit! :search_paths

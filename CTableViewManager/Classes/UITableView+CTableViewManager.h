@@ -11,6 +11,13 @@
 
 #define CTableViewManagerException @"CTableViewManagerException"
 
+/*
+ - (void)addSection:(NSString *)sectionName;
+ - (CTableViewSection *)section:(NSString *)sectionName;
+ 
+ - (void)addCell:(NSDictionary *)model managerClass:(id<CTableViewCellManager>)klass;
+ */
+
 @interface UITableView (CTableViewManager)
 
 @property (nonatomic, strong, readonly) id<CTableViewSectionModel> c_defaultSection; // 第一个section，没有会自动创建
@@ -72,7 +79,7 @@
  @param anotherSectionModel 目标section数据模型
  */
 - (void)c_insertSection:(id<CTableViewSectionModel>)sectionModel
-             afterSection:(id<CTableViewSectionModel>)anotherSectionModel;
+           afterSection:(id<CTableViewSectionModel>)anotherSectionModel;
 
 /**
  在一个section前插入section
@@ -81,7 +88,7 @@
  @param anotherSectionModel 目标section数据模型
  */
 - (void)c_insertSection:(id<CTableViewSectionModel>)sectionModel
-            beforeSection:(id<CTableViewSectionModel>)anotherSectionModel;
+          beforeSection:(id<CTableViewSectionModel>)anotherSectionModel;
 
 /**
  重新加载section
@@ -118,7 +125,7 @@
  @param anotherCellModel 目标cell数据模型
  */
 - (void)c_insertCell:(id<CTableViewCellModel>)cellModel
-             afterCell:(id<CTableViewCellModel>)anotherCellModel;
+           afterCell:(id<CTableViewCellModel>)anotherCellModel;
 
 /**
  在第一个section的cell后面批量插入cell。如果没有第一个section，则自动创建
@@ -127,7 +134,7 @@
  @param anotherCellModel 目标cell数据模型
  */
 - (void)c_insertCells:(NSArray<id<CTableViewCellModel>> *)cellModels
-              afterCell:(id<CTableViewCellModel>)anotherCellModel;
+            afterCell:(id<CTableViewCellModel>)anotherCellModel;
 
 /**
  在第一个section的cell前面插入cell。如果没有第一个section，则自动创建
@@ -136,7 +143,7 @@
  @param anotherCellModel 目标cell数据模型
  */
 - (void)c_insertCell:(id<CTableViewCellModel>)cellModel
-            beforeCell:(id<CTableViewCellModel>)anotherCellModel;
+          beforeCell:(id<CTableViewCellModel>)anotherCellModel;
 
 /**
  在第一个section的cell前面批量插入cell。如果没有第一个section，则自动创建
@@ -146,7 +153,7 @@
  */
 
 - (void)c_insertCells:(NSArray<id<CTableViewCellModel>> *)cellModels
-             beforeCell:(id<CTableViewCellModel>)anotherCellModel;
+           beforeCell:(id<CTableViewCellModel>)anotherCellModel;
 
 /**
  添加一个cell
@@ -155,7 +162,7 @@
  @param sectionModel 目标section数据模型
  */
 - (void)c_addCell:(id<CTableViewCellModel>)cellModel
-          inSection:(id<CTableViewSectionModel>)sectionModel;
+        inSection:(id<CTableViewSectionModel>)sectionModel;
 
 /**
  添加多个cell
@@ -164,7 +171,7 @@
  @param sectionModel 目标section数据模型
  */
 - (void)c_addCells:(NSArray<id<CTableViewCellModel>> *)cellModels
-           inSection:(id<CTableViewSectionModel>)sectionModel;
+         inSection:(id<CTableViewSectionModel>)sectionModel;
 
 /**
  在cell后面插入cell
@@ -174,8 +181,8 @@
  @param sectionModel     目标section数据模型
  */
 - (void)c_insertCell:(id<CTableViewCellModel>)cellModel
-             afterCell:(id<CTableViewCellModel>)anotherCellModel
-             inSection:(id<CTableViewSectionModel>)sectionModel;
+           afterCell:(id<CTableViewCellModel>)anotherCellModel
+           inSection:(id<CTableViewSectionModel>)sectionModel;
 
 /**
  在cell后面批量插入cell
@@ -185,8 +192,8 @@
  @param sectionModel     目标section数据模型
  */
 - (void)c_insertCells:(NSArray<id<CTableViewCellModel>> *)cellModels
-              afterCell:(id<CTableViewCellModel>)anotherCellModel
-              inSection:(id<CTableViewSectionModel>)sectionModel;
+            afterCell:(id<CTableViewCellModel>)anotherCellModel
+            inSection:(id<CTableViewSectionModel>)sectionModel;
 
 /**
  在cell前面插入cell
@@ -196,8 +203,8 @@
  @param sectionModel     目标section数据模型
  */
 - (void)c_insertCell:(id<CTableViewCellModel>)cellModel
-            beforeCell:(id<CTableViewCellModel>)anotherCellModel
-             inSection:(id<CTableViewSectionModel>)sectionModel;
+          beforeCell:(id<CTableViewCellModel>)anotherCellModel
+           inSection:(id<CTableViewSectionModel>)sectionModel;
 
 /**
  在cell前面批量插入cell
@@ -208,8 +215,8 @@
  */
 
 - (void)c_insertCells:(NSArray<id<CTableViewCellModel>> *)cellModels
-             beforeCell:(id<CTableViewCellModel>)anotherCellModel
-              inSection:(id<CTableViewSectionModel>)sectionModel;
+           beforeCell:(id<CTableViewCellModel>)anotherCellModel
+            inSection:(id<CTableViewSectionModel>)sectionModel;
 
 /**
  重新加载cell

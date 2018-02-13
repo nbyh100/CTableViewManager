@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name                  = 'CTableViewManager'
-  s.version               = '2.0.0'
+  s.version               = '1.0.0'
   s.summary               = '管理UITableView数据'
   s.description           = <<-DESC
 使用面向对象的方式替代直接使用数据源和代理

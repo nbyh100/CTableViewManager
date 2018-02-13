@@ -16,6 +16,16 @@ void CSectionSetTableView (id<CTableViewSectionModel> sectionModel, UITableView 
     objc_setAssociatedObject(sectionModel, CSectionGetTableView, tableView, OBJC_ASSOCIATION_ASSIGN);
 }
 
+NSMutableArray<id<CTableViewCellModel>> *CSectionGetCells (id<CTableViewSectionModel> sectionModel) {
+    NSMutableArray *cells;
+    cells = objc_getAssociatedObject(sectionModel, CSectionGetCells);
+    if (!cells) {
+        cells = [NSMutableArray array];
+        objc_setAssociatedObject(sectionModel, CSectionGetCells, cells, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return cells;
+}
+
 id<CTableViewSectionModel> CCellGetSection (id<CTableViewCellModel> cellModel) {
     return objc_getAssociatedObject(cellModel, CCellGetSection);
 }
@@ -31,12 +41,24 @@ UITableView *CCellGetTableView (id<CTableViewCellModel> cellModel) {
     return nil;
 }
 
-NSMutableArray<id<CTableViewCellModel>> *CSectionGetCells (id<CTableViewSectionModel> sectionModel) {
-    NSMutableArray *cells;
-    cells = objc_getAssociatedObject(sectionModel, CSectionGetCells);
-    if (!cells) {
-        cells = [NSMutableArray array];
-        objc_setAssociatedObject(sectionModel, CSectionGetCells, cells, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+NSString *CSectionGetID (id<CTableViewSectionModel> sectionModel) {
+    return objc_getAssociatedObject(sectionModel, CSectionGetID);
+}
+
+void CSectionSetID (id<CTableViewSectionModel> sectionModel, NSString *sectionID) {
+    if (CSectionGetID(sectionModel)) {
+        return;
     }
-    return cells;
+    objc_setAssociatedObject(sectionModel, CSectionGetID, sectionID, OBJC_ASSOCIATION_COPY_NONATOMIC);
+}
+
+NSString *CCellGetID (id<CTableViewCellModel> cellModel) {
+    return objc_getAssociatedObject(cellModel, CCellGetID);
+}
+
+void CCellSetID (id<CTableViewCellModel> cellModel, NSString *cellID) {
+    if (CCellGetID(cellModel)) {
+        return;
+    }
+    objc_setAssociatedObject(cellModel, CCellGetID, cellID, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }

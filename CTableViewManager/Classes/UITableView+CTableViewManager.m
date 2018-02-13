@@ -154,7 +154,7 @@
 }
 
 - (void)c_insertCells:(NSArray<id<CTableViewCellModel>> *)cellModels afterCell:(id<CTableViewCellModel>)anotherCellModel inSection:(id<CTableViewSectionModel>)sectionModel {
-    [self ensureRowExists:anotherCellModel];
+    [self ensureCellExists:anotherCellModel];
 
     NSInteger index = [CSectionGetCells(sectionModel) indexOfObject:anotherCellModel];
     [self c_insertCells:cellModels atIndex:index + 1 inSection:sectionModel];
@@ -165,7 +165,7 @@
 }
 
 - (void)c_insertCells:(NSArray<id<CTableViewCellModel>> *)cellModels beforeCell:(id<CTableViewCellModel>)anotherCellModel inSection:(id<CTableViewSectionModel>)sectionModel {
-    [self ensureRowExists:anotherCellModel];
+    [self ensureCellExists:anotherCellModel];
 
     NSInteger index = [CSectionGetCells(sectionModel) indexOfObject:anotherCellModel];
     [self c_insertCells:cellModels atIndex:index inSection:sectionModel];
@@ -178,7 +178,7 @@
 - (void)c_reloadCells:(NSArray<id<CTableViewCellModel>> *)cellModels {
     NSMutableArray<NSIndexPath *> *indexPaths = [NSMutableArray array];
     for (id<CTableViewCellModel> cellModel in cellModels) {
-        [self ensureRowExists:cellModel];
+        [self ensureCellExists:cellModel];
 
         NSInteger sectionIndex = [self.c_sectionModels indexOfObject:CCellGetSection(cellModel)];
         NSInteger rowIndex = [CSectionGetCells(CCellGetSection(cellModel)) indexOfObject:cellModel];
@@ -198,7 +198,7 @@
 - (void)c_deleteCells:(NSArray<id<CTableViewCellModel>> *)cellModels {
     NSMutableArray<NSIndexPath *> *indexPaths = [NSMutableArray array];
     for (id<CTableViewCellModel> cellModel in cellModels) {
-        [self ensureRowExists:cellModel];
+        [self ensureCellExists:cellModel];
 
         NSInteger sectionIndex = [self.c_sectionModels indexOfObject:CCellGetSection(cellModel)];
         NSInteger rowIndex = [CSectionGetCells(CCellGetSection(cellModel)) indexOfObject:cellModel];
@@ -218,7 +218,7 @@
 }
 
 - (void)c_selectCell:(id<CTableViewCellModel>)cellModel {
-    [self ensureRowExists:cellModel];
+    [self ensureCellExists:cellModel];
 
     NSInteger sectionIndex = [self.c_sectionModels indexOfObject:CCellGetSection(cellModel)];
     NSInteger rowIndex = [CSectionGetCells(CCellGetSection(cellModel)) indexOfObject:cellModel];
@@ -227,7 +227,7 @@
 }
 
 - (void)c_deselectCell:(id<CTableViewCellModel>)cellModel {
-    [self ensureRowExists:cellModel];
+    [self ensureCellExists:cellModel];
 
     NSInteger sectionIndex = [self.c_sectionModels indexOfObject:CCellGetSection(cellModel)];
     NSInteger rowIndex = [CSectionGetCells(CCellGetSection(cellModel)) indexOfObject:cellModel];
@@ -295,10 +295,8 @@
     NSMutableArray<NSIndexPath *> *indexPaths = [NSMutableArray array];
     NSInteger sectionIndex = [self.c_sectionModels indexOfObject:sectionModel];
     NSInteger currentRowIndex = rowIndex;
-    for (id<CTableViewCellModel> row in cellModels) {
-        if ([self.c_cellModels containsObject:row]) {
-            @throw [NSException exceptionWithName:CTableViewManagerException reason:@"Table view already contains this row." userInfo:nil];
-        }
+    for (id<CTableViewCellModel> cellModel in cellModels) {
+        [self ensureCellNotExists:cellModel];
 
         NSIndexPath *indexPath = [NSIndexPath indexPathForRow:currentRowIndex inSection:sectionIndex];
         [indexPaths addObject:indexPath];
@@ -340,13 +338,13 @@
     }
 }
 
-- (void)ensureRowExists:(id<CTableViewCellModel>)cellModel {
+- (void)ensureCellExists:(id<CTableViewCellModel>)cellModel {
     if (![self.c_cellModels containsObject:cellModel]) {
         [self raiseExceptionWithMessage:@"Target row is not in this tableview."];
     }
 }
 
-- (void)ensureRowNotExists:(id<CTableViewCellModel>)cellModel {
+- (void)ensureCellNotExists:(id<CTableViewCellModel>)cellModel {
     if ([self.c_cellModels containsObject:cellModel]) {
         [self raiseExceptionWithMessage:@"Table view already contains this row."];
     }

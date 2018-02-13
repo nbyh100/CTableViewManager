@@ -1,8 +1,10 @@
 PODS:
   - CTableViewManager (2.0.0)
+  - Masonry (1.1.0)
 
 DEPENDENCIES:
   - CTableViewManager (from `../`)
+  - Masonry
 
 EXTERNAL SOURCES:
   CTableViewManager:
@@ -10,7 +12,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   CTableViewManager: 6210dabc9423ee0ab1bf697b0bea9df869aa7755
+  Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
 
-PODFILE CHECKSUM: bf737bf6cba52d3e888bde8f6b293c27af86da8d
+PODFILE CHECKSUM: 0fcb2d60c8160d4acc2342eb10f69497fcc73c56
 
 COCOAPODS: 1.2.1

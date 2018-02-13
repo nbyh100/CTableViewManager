@@ -11,3 +11,9 @@
 UITableView *CSectionGetTableView (id<CTableViewSectionModel> sectionModel);
 UITableView *CCellGetTableView (id<CTableViewCellModel> cellModel);
 id<CTableViewSectionModel> CCellGetSection (id<CTableViewCellModel> cellModel);
+
+NSString *CSectionGetID (id<CTableViewSectionModel> sectionModel);
+void CSectionSetID (id<CTableViewSectionModel> sectionModel, NSString *sectionID);
+NSString *CCellGetID (id<CTableViewCellModel> cellModel);
+void CCellSetID (id<CTableViewCellModel> cellModel, NSString *cellID);
+
