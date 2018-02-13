@@ -1,6 +1,13 @@
 # CTableViewManager
 
-UITableView管理工具，使用面向对象、数据驱动UI的方式。
+UITableView管理工具，代替dataSource和delegate。
+
+## 特性
+* 面向对象
+* 数据驱动
+* 行高缓存
+* 自动计算autolayout
+* 静默刷新（不调用reloadRowsAtIndexPaths）
 
 ## 示例
 
