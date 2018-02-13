@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = '961441EA548F56BDB692EBD59EF87805'
+               BlueprintIdentifier = '64BD0DA0CBC8D9C2A1B009B873505F85'
                BlueprintName = 'CTableViewManager'
                ReferencedContainer = 'container:Pods.xcodeproj'
                BuildableName = 'CTableViewManager.framework'>

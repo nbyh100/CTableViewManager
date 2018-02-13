@@ -2,194 +2,116 @@
 //  CViewController.m
 //  CTableViewManager
 //
-//  Created by nbyh100@sina.com on 12/22/2017.
-//  Copyright (c) 2017 nbyh100@sina.com. All rights reserved.
+//  Created by nbyh100@sina.com on 02/11/2018.
+//  Copyright (c) 2018 nbyh100@sina.com. All rights reserved.
 //
 
 #import "CViewController.h"
 #import <CTableViewManager/CTableViewManager.h>
-#import <Masonry/Masonry.h>
 
-@interface CAutoLayoutCell : UITableViewCell
-
-@property (nonatomic, weak) UILabel *titleLabel;
-@property (nonatomic, weak) UILabel *detailLabel;
-
-@end
-
-@implementation CAutoLayoutCell
-
-- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
-    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
-    if (self) {
-        self.selectionStyle = UITableViewCellSelectionStyleNone;
-
-        UILabel *titleLabel = [UILabel new];
-        titleLabel.font = [UIFont systemFontOfSize:16];
-        titleLabel.textColor = [UIColor colorWithWhite:0.8 alpha:1];
-        titleLabel.numberOfLines = 2;
-        titleLabel.preferredMaxLayoutWidth = CGRectGetWidth([UIScreen mainScreen].bounds) - 32;
-        [self.contentView addSubview:titleLabel];
-        self.titleLabel = titleLabel;
-
-        UILabel *detailLabel = [UILabel new];
-        detailLabel.font = [UIFont systemFontOfSize:14];
-        detailLabel.textColor = [UIColor colorWithWhite:0.6 alpha:1];
-        detailLabel.numberOfLines = 0;
-        detailLabel.preferredMaxLayoutWidth = CGRectGetWidth([UIScreen mainScreen].bounds) - 32;
-        [self.contentView addSubview:detailLabel];
-        self.detailLabel = detailLabel;
-
-        [titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.top.mas_equalTo(10);
-            make.left.mas_equalTo(16);
-            make.right.mas_equalTo(-16);
-        }];
-        [detailLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.top.mas_equalTo(titleLabel.mas_bottom).offset(5);
-            make.left.mas_equalTo(16);
-            make.right.mas_equalTo(-16);
-            make.bottom.mas_equalTo(-10);
-        }];
-    }
-    return self;
-}
-
-@end
-
-@interface CAutoLayoutCellModel : NSObject<CTableViewCellModel>
+@interface CSimpleCellPayload : NSObject<ITableViewCellPayload>
 
 @property (nonatomic, strong) NSString *title;
-@property (nonatomic, strong) NSString *detail;
+@property (nonatomic, assign) BOOL selected;
 
 @end
 
-@implementation CAutoLayoutCellModel
+@implementation CSimpleCellPayload
+
+@synthesize sectionManager;
+@synthesize cellData;
+
+- (nonnull id)copyWithZone:(nullable NSZone *)zone {
+    CSimpleCellPayload *payload = [[self class] new];
+    payload.title = self.title;
+    payload.selected = self.selected;
+    return payload;
+}
 
 - (Class)cellClass {
-    return [CAutoLayoutCell class];
+    return [UITableViewCell class];
 }
 
 - (CGFloat)cellHeight {
-    return UITableViewAutomaticDimension;
+    return 100;
 }
 
-- (void)willDisplay:(CAutoLayoutCell *)cell {
-    cell.titleLabel.text = self.title;
-    cell.detailLabel.text = self.detail;
+- (void)willDisplay:(UITableViewCell *)cell {
+}
+
+- (void)refresh:(UITableViewCell *)cell {
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    cell.textLabel.text = self.title;
+    if (cell.selected) {
+        cell.backgroundColor = [UIColor yellowColor];
+    } else {
+        cell.backgroundColor = [UIColor whiteColor];
+    }
+}
+
+- (void)didEndDisplaying:(UITableViewCell *)cell {
 }
 
 - (void)didSelect {
-    [CCellGetTableView(self) c_deselectCell:self];
+    [self.sectionManager refreshCellWithID:self.cellData.cellID block:^NSObject<ITableViewCellPayload> * _Nonnull(NSObject<ITableViewCellPayload> * _Nonnull payload) {
+        CSimpleCellPayload *myPayload = (CSimpleCellPayload *)payload;
+        myPayload.selected = YES;
+        return myPayload;
+    }];
+    NSLog(@"Select %@", self.cellData.cellID);
 }
 
-@end
-
-@interface CButtonCell : UITableViewCell
-
-@property (nonatomic, weak) UILabel *titleLabel;
-
-@end
-
-@implementation CButtonCell
-
-- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
-    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
-    if (self) {
-        self.backgroundColor = [UIColor orangeColor];
-        self.selectionStyle = UITableViewCellSelectionStyleNone;
-
-        UILabel *titleLabel = [UILabel new];
-        titleLabel.font = [UIFont systemFontOfSize:18];
-        titleLabel.textColor = [UIColor whiteColor];
-        [self.contentView addSubview:titleLabel];
-        [titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.center.mas_equalTo(0);
-        }];
-        self.titleLabel = titleLabel;
-    }
-    return self;
-}
-
-@end
-
-@interface CButtonCellModel : NSObject<CTableViewCellModel>
-
-@property (nonatomic, strong) NSString *title;
-@property (nonatomic, strong) void (^didSelectAction)(void);
-
-@end
-
-@implementation CButtonCellModel
-
-- (Class)cellClass {
-    return [CButtonCell class];
-}
-
-- (CGFloat)cellHeight {
-    return 44;
-}
-
-- (void)willDisplay:(CButtonCell *)cell {
-    cell.titleLabel.text = self.title;
-}
-
-- (void)didSelect {
-    if (self.didSelectAction) {
-        self.didSelectAction();
-    }
+- (void)didDeselect {
+    [self.sectionManager refreshCellWithID:self.cellData.cellID block:^NSObject<ITableViewCellPayload> * _Nonnull(NSObject<ITableViewCellPayload> * _Nonnull payload) {
+        CSimpleCellPayload *myPayload = (CSimpleCellPayload *)payload;
+        myPayload.selected = NO;
+        return myPayload;
+    }];
+    NSLog(@"Deselect %@", self.cellData.cellID);
 }
 
 @end
 
 @interface CViewController ()
 
+@property (nonatomic, weak) UITableView *tableView;
 @property (nonatomic, strong) CTableViewManager *manager;
 
 @end
 
 @implementation CViewController
 
-- (void)dealloc {
-    self.tableView.dataSource = nil;
-    self.tableView.delegate = nil;
-}
-
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    self.manager = [CTableViewManager new];
-    self.tableView.dataSource = self.manager;
-    self.tableView.delegate = self.manager;
+    UITableView *tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+    [self.view addSubview:tableView];
+    self.tableView = tableView;
 
-    __block NSInteger i = 3;
-    __block id lastCellModel;
-
-    [self.tableView c_reloadDataWithBlock:^{
-        CAutoLayoutCellModel *cellModel1 = [CAutoLayoutCellModel new];
-        cellModel1.title = @"My Title 1";
-        cellModel1.detail = @"A short text.";
-        [self.tableView c_addCell:cellModel1];
-
-        CAutoLayoutCellModel *cellModel2 = [CAutoLayoutCellModel new];
-        cellModel2.title = @"My Title 2";
-        cellModel2.detail = @"A very long text. A very long text. A very long text. A very long text. A very long text. A very long text. A very long text. A very long text. A very long text. A very long text. A very long text. A very long text. A very long text. A very long text. A very long text. A very long text. A very long text. A very long text. A very long text. A very long text. ";
-        [self.tableView c_addCell:cellModel2];
-
-        lastCellModel = cellModel2;
-
-        CButtonCellModel *buttonCellModel = [CButtonCellModel new];
-        buttonCellModel.title = @"增加一行";
-        buttonCellModel.didSelectAction = ^{
-            CAutoLayoutCellModel *cellModel = [CAutoLayoutCellModel new];
-            cellModel.title = [NSString stringWithFormat:@"My Title %ld", i];
-            cellModel.detail = [NSString stringWithFormat:@"Detail text %ld", i];
-            [self.tableView c_insertCell:cellModel afterCell:lastCellModel];
-            lastCellModel = cellModel;
-            i++;
-        };
-        [self.tableView c_addCell:buttonCellModel];
+    self.manager = [[CTableViewManager alloc] initWithTableView:self.tableView];
+    self.manager.enableCellHeightCache = YES;
+    [self.manager performReloadBlock:^{
+        CTableViewSectionManager *sm = [self.manager addSectionWithID:@"default"];
+        for (NSInteger i = 0; i < 10; i++) {
+            CSimpleCellPayload *p = [CSimpleCellPayload new];
+            p.title = [NSString stringWithFormat:@"Title %ld", i];
+            [sm addCellWithID:[NSString stringWithFormat:@"cell%ld", i] payload:p];
+        }
     }];
+
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        CTableViewSectionManager *sm = [self.manager sectionWithID:@"default"];
+        [sm refreshCellWithID:@"cell2" block:^NSObject<ITableViewCellPayload> * _Nonnull(NSObject<ITableViewCellPayload> *_Nonnull data) {
+            CSimpleCellPayload *p = [(NSObject *)data copy];
+            p.title = @"updated";
+            return p;
+        }];
+    });
+}
+
+- (void)viewWillLayoutSubviews {
+    self.tableView.frame = self.view.bounds;
 }
 
 @end
+

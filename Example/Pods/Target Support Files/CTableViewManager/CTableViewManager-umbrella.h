@@ -10,10 +10,11 @@
 #endif
 #endif
 
+#import "CTableViewCellData.h"
 #import "CTableViewManager.h"
-#import "Helpers.h"
+#import "CTableViewManagerHelper.h"
+#import "CTableViewSectionManager.h"
 #import "Protocols.h"
-#import "UITableView+CTableViewManager.h"
 
 FOUNDATION_EXPORT double CTableViewManagerVersionNumber;
 FOUNDATION_EXPORT const unsigned char CTableViewManagerVersionString[];

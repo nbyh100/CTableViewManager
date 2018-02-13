@@ -1,22 +1,22 @@
 //
-//  UITableView+Private.h
-//  CTableViewManager
+//  Private.h
+//  Pods
 //
-//  Created by 张九州 on 2018/2/7.
+//  Created by 张九州 on 2018/2/13.
 //
 
-#import <UIKit/UIKit.h>
-#import "Protocols.h"
+@class CTableViewSectionManager;
 
-void CSectionSetTableView (id<CTableViewSectionModel> sectionModel, UITableView *tableView);
-void CCellSetSection (id<CTableViewCellModel> cellModel, id<CTableViewSectionModel> sectionModel);
-NSMutableArray<id<CTableViewCellModel>> *CSectionGetCells (id<CTableViewSectionModel> sectionModel);
+@interface CTableViewSectionManager (Private)
 
-@interface UITableView (Private)
+@property (nonatomic, strong) NSMutableArray<CTableViewCellData *> *cells;
+@property (nonatomic, copy) void (^didSelectCell)(NSInteger index, BOOL animated, UITableViewScrollPosition scrollPosition);
+@property (nonatomic, copy) void (^didDeselectCell)(NSInteger index, BOOL animated);
 
-@property (nonatomic, strong) NSMutableArray *c_sectionModels;
-@property (nonatomic, strong) NSMutableSet *c_cellModels;
-@property (nonatomic, assign) BOOL c_isReload;
-@property (nonatomic, strong, readonly) id<CTableViewSectionModel> c_defaultSection;
+@end
+
+@interface CTableViewCellData (Private)
+
+@property (nonatomic, assign) BOOL isRefresh;
 
 @end
